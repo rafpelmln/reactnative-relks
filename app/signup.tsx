@@ -8,76 +8,96 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useRouter } from "expo-router";
-import Ionicons from "react-native-vector-icons/Ionicons"; // Import Ionicons
+import Ionicons from "react-native-vector-icons/Ionicons";
+import axios from "axios"; // Import axios
 
 const SignupScreen = () => {
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [address, setAddress] = useState("");
+  const [telpon, setTelpon] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // State untuk kontrol visibilitas password
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // State untuk kontrol visibilitas konfirmasi password
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     if (password !== confirmPassword) {
       alert("Passwords do not match");
       return;
     }
-    alert("Sign Up successful!");
-    // router.replace("/")
+
+    try {
+      const response = await axios.post("http://localhost:3000/api/signup", {
+        nama: fullName,
+        username,
+        alamat: address,
+        telpon,
+        password,
+      });
+
+      if (response.data.success) {
+        alert("Signup successful!");
+        router.replace("/");
+      } else {
+        alert(response.data.message);
+      }
+    } catch (error) {
+      alert("An error occurred. Please try again.");
+    }
   };
 
   const handleLogin = () => {
-    router.replace("/"); // Kembali ke halaman login
+    router.replace("/");
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Silahkan isi data pribadi anda</Text>
-
       <TextInput
         style={styles.input}
         placeholder="Nama Lengkap"
         value={fullName}
         onChangeText={setFullName}
       />
-
       <TextInput
         style={styles.input}
         placeholder="Username"
         value={username}
         onChangeText={setUsername}
       />
-
       <TextInput
         style={styles.input}
         placeholder="Alamat"
         value={address}
         onChangeText={setAddress}
       />
-
+      <TextInput
+        style={styles.input}
+        placeholder="Nomor Telepon"
+        value={telpon}
+        onChangeText={setTelpon}
+      />
       <View style={styles.passwordContainer}>
         <TextInput
           style={styles.input}
           placeholder="Password"
           value={password}
           onChangeText={setPassword}
-          secureTextEntry={!showPassword} // Jika showPassword true, password akan terlihat
+          secureTextEntry={!showPassword}
         />
         <TouchableOpacity
           onPress={() => setShowPassword(!showPassword)}
-          style={styles.iconContainer} // Membuat ikon tetap berada di dalam field teks
+          style={styles.iconContainer}
         >
           <Ionicons
-            name={showPassword ? "eye" : "eye-off"} // Toggle antara ikon mata terbuka dan tertutup
+            name={showPassword ? "eye" : "eye-off"}
             size={24}
             color="gray"
           />
         </TouchableOpacity>
       </View>
-
       <View style={styles.passwordContainer}>
         <TextInput
           style={styles.input}
@@ -91,13 +111,12 @@ const SignupScreen = () => {
           style={styles.iconContainer}
         >
           <Ionicons
-            name={showConfirmPassword ? "eye" : "eye-off"} // Toggle antara ikon mata terbuka dan tertutup
+            name={showConfirmPassword ? "eye" : "eye-off"}
             size={24}
             color="gray"
           />
         </TouchableOpacity>
       </View>
-
       <Button title="Daftar" onPress={handleSignup} />
       <Button title="Masuk" onPress={handleLogin} />
     </View>
@@ -125,12 +144,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   passwordContainer: {
-    position: "relative", // Agar ikon bisa berada di dalam input
+    position: "relative",
   },
   iconContainer: {
-    position: "absolute", // Mengatur posisi ikon agar berada di dalam TextInput
-    right: 10, // Menempatkan ikon di kanan
-    top: 13, // Menempatkan ikon sedikit lebih rendah agar tidak menempel di atas
+    position: "absolute",
+    right: 10,
+    top: 13,
   },
 });
 
